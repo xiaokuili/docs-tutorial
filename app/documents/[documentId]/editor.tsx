@@ -9,8 +9,16 @@ import TableCell from '@tiptap/extension-table-cell'
 import TableHeader from '@tiptap/extension-table-header'
 import TableRow from '@tiptap/extension-table-row'
 import ImageResize from 'tiptap-extension-resize-image';
+import FontFamily from '@tiptap/extension-font-family'
+import TextStyle from '@tiptap/extension-text-style'
+import Heading from '@tiptap/extension-heading'
+
+import { Underline as UnderlineExtension } from '@tiptap/extension-underline'
+import { useEffect } from 'react';
+import { useEditor as useEditorStore } from '@/hook/use-editor';
 
 export default function Editor() {
+  const { setEditor } = useEditorStore()
   const editor = useEditor({
     extensions: [
         StarterKit, 
@@ -22,7 +30,11 @@ export default function Editor() {
         TableCell,
         TableHeader,
         TableRow,
-        ImageResize
+        ImageResize,
+        UnderlineExtension,
+        FontFamily,
+        TextStyle,
+        Heading
     ],
     content: `
         <table>
@@ -48,12 +60,22 @@ export default function Editor() {
         style: 'padding-left: 56px; padding-right: 56px;'
        },
     },
+    immediatelyRender: false, // 👈 添加这行
+    
+
   })
+  useEffect(() => {
+    if (editor) {
+      setEditor(editor);
+    }
+    return () => setEditor(null);
+  }, [editor, setEditor]);
 
   return (
-    <EditorContent 
-        editor={editor} 
-  
-    />   
+    <div role="textbox" aria-label="Rich text editor">
+      <EditorContent 
+        editor={editor}
+      />   
+    </div>
   )
 }
