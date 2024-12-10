@@ -9,10 +9,16 @@ import {
   Bold,
   Italic,
   Underline,
-
+  SpellCheck2Icon,
+  MessageSquare,
+  List,
+  ListOrdered,
+  ListTodo,
+  RemoveFormatting,
 } from 'lucide-react';
 import React from 'react';
-
+import { CirclePicker, ColorResult } from 'react-color'
+import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,292 +30,117 @@ import {
 import { useState, useEffect } from 'react';
 import { Separator } from '@/components/ui/separator';
 import { useEditor } from '@/hook/use-editor';
-
+import { Button } from '@/components/ui/button';
 
 export default function Toolbar() {
   const { editor } = useEditor();
-
-  const editorToolItems: { icon: LucideIcon, onClick: () => void, label: string }[] = [
-    {
-      icon: Undo,
-      onClick: () => editor?.chain().focus().undo().run(),
-      label: 'undo'
-    },
-    {
-      icon: Redo,
-      onClick: () => editor?.chain().focus().redo().run(),
-      label: 'redo'
-    },
-    {
-      icon: Printer,
-      onClick: () => window.print(),
-      label: 'print'
-    },
-    {
-      icon: Check,
-      onClick: () => {
-        // TODO: Implement grammar check functionality
-        console.log('Grammar check clicked')
-      },
-      label: 'grammarCheck'
-    },
-  ];
-  const fontToolItems: { icon: LucideIcon, onClick: () => void, label: string }[] = [
-    {
-      icon: Bold,
-      onClick: () => editor?.chain().focus().toggleBold().run(),
-      label: 'bold'
-    },
-    {
-      icon: Italic,
-      onClick: () => editor?.chain().focus().toggleItalic().run(),
-      label: 'italic'
-    },
-    {
-      icon: Underline,
-      onClick: () => editor?.chain().focus().toggleUnderline().run(),
-      label: 'underline'
-    }
-  ]
-
+  const sections: {
+    label: string,
+    Icon: LucideIcon,
+    onClick: () => void,
+    isActive: boolean
+  }[][] = [
+      [
+        { label: 'Undo', Icon: Undo, onClick: () => editor?.chain().focus().undo().run() },
+        { label: 'Redo', Icon: Redo, onClick: () => editor?.chain().focus().redo().run() },
+        { label: 'Print', Icon: Printer, onClick: () => window.print() },
+        {
+          label: 'Spell Check', Icon: SpellCheck2Icon, onClick: () => {
+            const current = editor?.view.dom.getAttribute("spellcheck")
+            console.log(current)
+            editor?.view.dom.setAttribute("spellcheck", current === 'false' ? "true" : "false")
+          }
+        },
+      ],
+      [
+        {
+          label: 'Bold',
+          Icon: Bold,
+          onClick: () => editor?.chain().focus().toggleBold().run(),
+          isActive: editor?.isActive('bold') ?? false
+        },
+        {
+          label: 'Italic',
+          Icon: Italic,
+          onClick: () => editor?.chain().focus().toggleItalic().run(),
+          isActive: editor?.isActive('italic') ?? false
+        },
+        {
+          label: 'Underline',
+          Icon: Underline,
+          onClick: () => editor?.chain().focus().toggleUnderline().run(),
+          isActive: editor?.isActive('underline') ?? false
+        }
+      ],
+      [
+        {
+          label: 'Comment',
+          Icon: MessageSquare,
+          onClick: () => console.log('comment'),
+          isActive: false
+        },
+        {
+          label: 'Task List',
+          Icon: ListTodo,
+          onClick: () => editor?.chain().focus().toggleTaskList().run(),
+          isActive: editor?.isActive('taskList') ?? false
+        },
+        {
+          label: 'Remove Formatting',
+          Icon: RemoveFormatting,
+          onClick: () => editor?.chain().focus().clearNodes().unsetAllMarks().run(),
+          isActive: false
+        }
+      ]
+    ]
 
 
   return (
-    <div className="bg-transparent rounded-md">
-      <div className="flex flex-wrap items-center gap-1 p-1">
-        {editorToolItems.map((item, index) => (
-          <ToolbarButton
-            icon={item.icon}
-            onClick={item.onClick}
-            label={item.label}
-            key={index}
-          />
+    <div className="bg-[#F1F4F9] px-2.5 py-0.5  min-h-[40px] flex items-center gap-x-0.5 overflow-auto">
 
-        ))}
-        <Separator orientation="vertical" className="h-6 mx-1 bg-neutral-300" />
+      {sections[0].map(({ label, Icon, onClick, isActive }) => (
+        <ToolbarButton key={label} label={label} Icon={Icon} onClick={onClick} active={isActive} />
+      ))}
+      <Separator orientation="vertical" className="h-6 bg-neutral-300" />
+      {/* TODO: Font family */}
+      <Separator orientation="vertical" className="h-6 bg-neutral-300" />
 
-        {fontToolItems.map((item, index) => (
-          <ToolbarButton
-            icon={item.icon}
-            onClick={item.onClick}
-            label={item.label}
-            key={index}
-          />
-        ))}
+      {/* TODO: Heading  */}
+      <Separator orientation="vertical" className="h-6 bg-neutral-300" />
 
-        <Separator orientation="vertical" className="h-6 mx-1 bg-neutral-300" />
+      {/* TODO: Font Size */}
+      <Separator orientation="vertical" className="h-6 bg-neutral-300" />
 
-        <FontFamilySelector />
-        <Separator orientation="vertical" className="h-6 mx-1 bg-neutral-300" />
-        {/* TODO： Heading */}
-        <HeadingSelector />
-        <Separator orientation="vertical" className="h-6 mx-1 bg-neutral-300" />
-        {/* TODO: Font size */}
-        <Separator orientation="vertical" className="h-6 mx-1 bg-neutral-300" />
-        {/* TODO: Text Color */}
-        <Separator orientation="vertical" className="h-6 mx-1 bg-neutral-300" />
-        {/* TODO: Highlight Color*/}
-        <Separator orientation="vertical" className="h-6 mx-1 bg-neutral-300" />
-        {/* TODO: Link */}
-        {/* TODO: Image */}
-        {/* TODO: Align  */}
-        {/* TODO: Line height */}
-        {/* TODO: List */}
-        <Separator orientation="vertical" className="h-6 mx-1 bg-neutral-300" />
-      </div>
+      {sections[1].map(({ label, Icon, onClick, isActive }) => (
+        <ToolbarButton key={label} label={label} Icon={Icon} onClick={onClick} active={isActive} />
+      ))}
+      {/* TODO: Text Color */}
+      {/* TODO: Highlight Color */}
+      <Separator orientation="vertical" className="h-6 bg-neutral-300" />
+      {/* TODO: Link */}
+      {/* TODO: Image */}
+      {/* TODO: Align */}
+      {/* TODO: Line height */}
+      {/* TODO: List  */}
+      {sections[2].map(({ label, Icon, onClick, isActive }) => (
+        <ToolbarButton key={label} label={label} Icon={Icon} onClick={onClick} active={isActive} />
+      ))}
     </div>
   )
 }
 
 
 interface ToolbarButtonProps {
-  icon: LucideIcon;
+  Icon: LucideIcon;
   onClick: () => void;
-  label: string;
+  active: boolean;
 }
 
-function ToolbarButton({ icon: Icon, onClick, label }: ToolbarButtonProps) {
-  const { editor } = useEditor();
-  const [isActive, setIsActive] = useState(false);
-
-
-  useEffect(() => {
-    if (!editor) return;
-
-    const updateIsActive = () => {
-      const active = editor.isActive(label);
-      setIsActive(active);
-    };
-
-    // 初始状态
-    updateIsActive();
-
-    // 监听变化
-    editor.on('transaction', updateIsActive);
-    editor.on('focus', updateIsActive);
-    editor.on('blur', updateIsActive);
-
-    return () => {
-      editor.off('transaction', updateIsActive);
-      editor.off('focus', updateIsActive);
-      editor.off('blur', updateIsActive);
-    };
-  }, [editor, label]);
-
-  const handleClick = () => {
-    if (!editor) return;
-    onClick();
-    // 强制更新状态
-    setIsActive(editor.isActive(label));
-    console.log(`${label} active:`, isActive)
-  };
+function ToolbarButton({ Icon, onClick, active }: ToolbarButtonProps) {
   return (
-    <button
-      onClick={handleClick}
-      className={`px-2 py-1 rounded hover:bg-gray-100 ${isActive ? 'bg-gray-200' : ''
-        }`}
-    >
+    <button onClick={onClick}
+      className={cn(" text-sm h-7 min-w-7 shrink-0 flex items-center justify-center rounded-sm hover:bg-neutral-200/80 px-1.5 overflow-hidden", active && "bg-neutral-200/80")}>
       <Icon className="w-4 h-4" />
     </button>
-  );
-}
-
-
-const FONT_FAMILIES = [
-  { label: 'Arial', value: 'Arial' },
-  { label: 'Times New Roman', value: 'Times New Roman' },
-  { label: 'Courier New', value: 'Courier New' },
-  { label: 'Georgia', value: 'Georgia' },
-  { label: 'Verdana', value: 'Verdana' }
-];
-
-function FontFamilySelector() {
-  const { editor } = useEditor();
-  const [activeFont, setActiveFont] = useState<string>('Arial');
-  const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    if (!editor) return;
-
-    const updateActiveFont = () => {
-      const attrs = editor.getAttributes('textStyle');
-      if (attrs.fontFamily) {
-        setActiveFont(attrs.fontFamily);
-      }
-    };
-
-    editor.on('transaction', updateActiveFont);
-    editor.on('focus', updateActiveFont);
-
-    return () => {
-      editor.off('transaction', updateActiveFont);
-      editor.off('focus', updateActiveFont);
-    };
-  }, [editor]);
-
-  const handleFontChange = (font: string) => {
-    if (!editor) return;
-    editor.chain().focus().setFontFamily(font).run();
-    setActiveFont(font);
-    setIsOpen(false);
-  };
-
-  return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-      <DropdownMenuTrigger className="px-2 py-1 rounded hover:bg-gray-100 flex items-center gap-1">
-        <span className="text-sm" style={{ fontFamily: activeFont }}>
-          {activeFont}
-        </span>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        onCloseAutoFocus={(event) => {
-          event.preventDefault(); // 防止自动聚焦
-        }}
-      >
-        {FONT_FAMILIES.map((font) => (
-          <DropdownMenuItem
-            key={font.value}
-            onClick={() => handleFontChange(font.value)}
-            className="min-w-[150px]"
-          >
-            <span style={{ fontFamily: font.value }}>{font.label}</span>
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
-
-function HeadingSelector() {
-  const { editor } = useEditor();
-  const [isOpen, setIsOpen] = useState(false);
-  const [activeHeading, setActiveHeading] = useState('Normal');
-  const HEADING_OPTIONS = [
-    { label: 'Normal', value: 'paragraph', fontSize: '1rem' },
-    { label: 'Heading 1', value: 'h1', fontSize: '1.4rem' },
-    { label: 'Heading 2', value: 'h2', fontSize: '1.2rem' }, 
-    { label: 'Heading 3', value: 'h3', fontSize: '1.1rem' },
-    { label: 'Heading 4', value: 'h4', fontSize: '1rem' },
-    { label: 'Heading 5', value: 'h5', fontSize: '1rem' },
-
-  ];
-
-  useEffect(() => {
-    if (!editor) return;
-
-    const updateActiveHeading = () => {
-      const activeOption = HEADING_OPTIONS.find(option => 
-        (option.value === 'paragraph' && editor.isActive('paragraph')) ||
-        editor.isActive(option.value)
-      );
-      setActiveHeading(activeOption?.label || 'Normal');
-    };
-
-    editor.on('transaction', updateActiveHeading);
-    editor.on('focus', updateActiveHeading);
-
-    return () => {
-      editor.off('transaction', updateActiveHeading);
-      editor.off('focus', updateActiveHeading);
-    };
-  }, [editor]);
-
-  const handleHeadingChange = (value: string) => {
-    if (!editor) return;
-    
-    if (value === 'paragraph') {
-      editor.chain().focus().setParagraph().run();
-    } else {
-      // Fix the type error by explicitly typing the level
-      const level = parseInt(value.slice(1)) as 1 | 2 | 3 | 4 | 5 | 6;
-      editor.chain().focus().toggleHeading({ level }).run();
-    }
-    
-    setIsOpen(false);
-  };
-
-  return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-      <DropdownMenuTrigger className="px-2 py-1 rounded hover:bg-gray-100 flex items-center gap-1">
-        <span className="text-sm">
-          {activeHeading}
-        </span>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        onCloseAutoFocus={(event) => {
-          event.preventDefault();
-        }}
-      >
-        {HEADING_OPTIONS.map((option) => (
-          <DropdownMenuItem
-            key={option.value}
-            onClick={() => handleHeadingChange(option.value)}
-            className="min-w-[150px] "
-          >
-            <span style={{ fontSize: option.fontSize }}>{option.label}</span>
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
+  )
 }

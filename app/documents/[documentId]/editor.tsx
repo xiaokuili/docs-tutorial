@@ -12,6 +12,7 @@ import ImageResize from 'tiptap-extension-resize-image';
 import FontFamily from '@tiptap/extension-font-family'
 import TextStyle from '@tiptap/extension-text-style'
 import Heading from '@tiptap/extension-heading'
+import Highlight from '@tiptap/extension-highlight'
 
 import { Underline as UnderlineExtension } from '@tiptap/extension-underline'
 import { useEffect } from 'react';
@@ -20,21 +21,47 @@ import { useEditor as useEditorStore } from '@/hook/use-editor';
 export default function Editor() {
   const { setEditor } = useEditorStore()
   const editor = useEditor({
+    onCreate: (props) => {
+      setEditor(props.editor)
+    },
+    onDestroy: () => {
+      setEditor(null)
+    },
+    onUpdate: ({ editor }) => {
+      setEditor(editor)
+    },
+    onSelectionUpdate: ({ editor }) => {
+      setEditor(editor)
+    },
+    onTransaction: ({ editor }) => {
+      setEditor(editor)
+    },
+    onFocus: ({ editor }) => {
+      setEditor(editor)
+    },
+    onBlur: ({ editor }) => {
+      setEditor(editor)
+    },
+
+    onContentError: ({ editor, error, disableCollaboration }) => {
+      setEditor(editor)
+    },
     extensions: [
-        StarterKit, 
-        TaskList, 
-        TaskItem.configure({nested: true}),
-        Table.configure({
-            resizable: true,
-        }),
-        TableCell,
-        TableHeader,
-        TableRow,
-        ImageResize,
-        UnderlineExtension,
-        FontFamily,
-        TextStyle,
-        Heading
+      StarterKit,
+      TaskList,
+      TaskItem.configure({ nested: true }),
+      Table.configure({
+        resizable: true,
+      }),
+      TableCell,
+      TableHeader,
+      TableRow,
+      ImageResize,
+      UnderlineExtension,
+      FontFamily,
+      TextStyle,
+      Heading,
+      Highlight.configure({ multicolor: true })
     ],
     content: `
         <table>
@@ -55,27 +82,21 @@ export default function Editor() {
         <img src="https://placehold.co/800x400" />
     `,
     editorProps: {
-    attributes: {
+      attributes: {
         class: `prose max-w-none min-h-[297mm] p-[96px] text-[11pt] text-gray-800 font-normal leading-[1.5] outline-none focus:outline-none focus:ring-0 selection:bg-blue-200 print:shadow-none print:m-0 print:p-[0.5in] [&>*]:min-h-[1em] bg-white shadow-lg`,
         style: 'padding-left: 56px; padding-right: 56px;'
-       },
+      },
     },
     immediatelyRender: false, // 👈 添加这行
-    
+
 
   })
-  useEffect(() => {
-    if (editor) {
-      setEditor(editor);
-    }
-    return () => setEditor(null);
-  }, [editor, setEditor]);
 
   return (
     <div role="textbox" aria-label="Rich text editor">
-      <EditorContent 
+      <EditorContent
         editor={editor}
-      />   
+      />
     </div>
   )
 }
