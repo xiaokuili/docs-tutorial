@@ -13,7 +13,8 @@ import {
   ListTodo,
   RemoveFormatting,
   ChevronDown,
-  HighlighterIcon
+  HighlighterIcon,
+  ImageIcon
 } from 'lucide-react';
 import React from 'react';
 import { cn } from '@/lib/utils';
@@ -22,11 +23,12 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { CirclePicker } from 'react-color'
+import {CirclePicker} from 'react-color'
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useEditor } from '@/hook/use-editor';
 import { Link } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 export default function Toolbar() {
   const { editor } = useEditor();
@@ -34,7 +36,7 @@ export default function Toolbar() {
     label: string,
     Icon: LucideIcon,
     onClick: () => void,
-    isActive: boolean
+    isActive?: boolean
   }[][] = [
       [
         { label: 'Undo', Icon: Undo, onClick: () => editor?.chain().focus().undo().run() },
@@ -94,8 +96,8 @@ export default function Toolbar() {
   return (
     <div className="bg-[#F1F4F9] px-2.5 py-0.5  min-h-[40px] flex items-center gap-x-1 overflow-auto">
 
-      {sections[0].map(({ label, Icon, onClick, isActive }) => (
-        <ToolbarButton key={label} label={label} Icon={Icon} onClick={onClick} active={isActive} />
+      {sections[0].map(({ label, Icon, onClick }) => (
+        <ToolbarButton key={label} Icon={Icon} onClick={onClick}  active/>
       ))}
       <Separator orientation="vertical" className="h-6 bg-neutral-300" />
       <FontFamilyButton />
@@ -105,20 +107,19 @@ export default function Toolbar() {
 
       {/* TODO: Font Size */}
       <Separator orientation="vertical" className="h-6 bg-neutral-300" />
-
       {sections[1].map(({ label, Icon, onClick, isActive }) => (
-        <ToolbarButton key={label} label={label} Icon={Icon} onClick={onClick} active={isActive} />
+        <ToolbarButton key={label} Icon={Icon} onClick={onClick} active={isActive ?? false} />
       ))}
       <ColorButton />
       <HighlightColorButton />
       <Separator orientation="vertical" className="h-6 bg-neutral-300" />
       <LinkButton />
-      {/* TODO: Image */}
+      <ImageButton />
       {/* TODO: Align */}
       {/* TODO: Line height */}
       {/* TODO: List  */}
       {sections[2].map(({ label, Icon, onClick, isActive }) => (
-        <ToolbarButton key={label} label={label} Icon={Icon} onClick={onClick} active={isActive} />
+        <ToolbarButton key={label} Icon={Icon} onClick={onClick} active={isActive ?? false} />
       ))}
     </div>
   )
@@ -159,8 +160,6 @@ function FontFamilyButton() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          variant="ghost"
-          size="sm"
           className=" text-sm h-7 min-w-7 shrink-0 flex items-center justify-center rounded-sm hover:bg-neutral-200/80 px-1.5 overflow-hidden">
           <span className="text-xs">{currentFontFamily}</span>
           <ChevronDown className="ml-2 size-4 shrink-0 opacity-50" />
@@ -196,8 +195,6 @@ const HeadingLevelButton = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          variant="ghost"
-          size="sm"
           className="text-sm h-7 min-w-7 shrink-0 flex items-center justify-center rounded-sm hover:bg-neutral-200/80 px-1.5"
         >
           {currentLevel ? `H${currentLevel}` : 'Normal'}
@@ -219,9 +216,9 @@ const HeadingLevelButton = () => {
             key={level}
             className={cn(
               "flex items-center px-2 py-1 rounded-sm hover:bg-neutral-200/80",
-              editor?.isActive('heading', { level }) && "bg-neutral-200/80"
+              editor?.isActive('heading', { level: level as 1 | 2 | 3 | 4 | 5 }) && "bg-neutral-200/80"
             )}
-            onClick={() => editor?.chain().focus().toggleHeading({ level }).run()}
+            onClick={() => editor?.chain().focus().toggleHeading({ level: level as 1 | 2 | 3 | 4 | 5 }).run()}
           >
             <span className={`${level === 1 ? 'text-2xl font-bold' : level === 2 ? 'text-xl font-semibold' : level === 3 ? 'text-base font-medium' : level === 4 ? 'text-sm font-medium' : level === 5 ? 'text-xs font-medium' : 'text-xs font-medium'}`}>Heading {level}</span>
           </button>
@@ -294,7 +291,9 @@ const LinkButton = () => {
     editor?.chain().focus().setLink({ href: url }).run()
   }
   return (
-    <DropdownMenu>
+    <DropdownMenu onOpenChange={() => {
+      setUrl(editor?.getAttributes('link').href || "")
+    }}>
       <DropdownMenuTrigger asChild>
         <button
           className={cn(
@@ -331,5 +330,89 @@ const LinkButton = () => {
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+};
+
+
+const ImageButton = () => {
+  const { editor } = useEditor();
+  const [url, setUrl] = React.useState(editor?.getAttributes('image').src || "");
+  const [showUrlDialog, setShowUrlDialog] = React.useState(false);
+
+  const handleApply = () => {
+    editor?.chain().focus().setImage({ src: url }).run()
+    setShowUrlDialog(false)
+  }
+
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // TODO: Implement file upload logic
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        editor?.chain().focus().setImage({ src: result }).run()
+      }
+      reader.readAsDataURL(file);
+    }
+  }
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            className="text-sm h-7 min-w-7 shrink-0 flex items-center justify-center rounded-sm hover:bg-neutral-200/80 px-1.5 overflow-hidden"
+          >
+            <ImageIcon className="w-4 h-4" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="p-1">
+          <label className="flex items-center gap-2 px-2 py-1.5 hover:bg-neutral-200/80 rounded-sm cursor-pointer">
+            <ImageIcon className="w-4 h-4" />
+            <span className="text-sm">Upload Image</span>
+            <input 
+              type="file" 
+              accept="image/*"
+              className="hidden"
+              onChange={handleUpload}
+            />
+          </label>
+          <button
+            className="flex items-center gap-2 px-2 py-1.5 w-full hover:bg-neutral-200/80 rounded-sm"
+            onClick={() => setShowUrlDialog(true)}
+          >
+            <Link className="w-4 h-4" />
+            <span className="text-sm">Image URL</span>
+          </button>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <Dialog open={showUrlDialog} onOpenChange={setShowUrlDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Add Image URL</DialogTitle>
+          </DialogHeader>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="https://example.com/image.png" 
+              value={url}
+              onChange={(e) => setUrl(e.currentTarget.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  handleApply()
+                }
+              }}
+              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+            />
+            <Button onClick={handleApply}>
+              Apply
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
