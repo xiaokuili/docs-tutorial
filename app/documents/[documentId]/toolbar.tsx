@@ -5,32 +5,28 @@ import {
   Undo,
   Redo,
   Printer,
-  Check,
   Bold,
   Italic,
   Underline,
   SpellCheck2Icon,
   MessageSquare,
-  List,
-  ListOrdered,
   ListTodo,
   RemoveFormatting,
+  ChevronDown,
+  HighlighterIcon
 } from 'lucide-react';
 import React from 'react';
-import { CirclePicker, ColorResult } from 'react-color'
 import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-
-
-import { useState, useEffect } from 'react';
+import { CirclePicker } from 'react-color'
+import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useEditor } from '@/hook/use-editor';
-import { Button } from '@/components/ui/button';
+import { Link } from 'lucide-react';
 
 export default function Toolbar() {
   const { editor } = useEditor();
@@ -96,16 +92,15 @@ export default function Toolbar() {
 
 
   return (
-    <div className="bg-[#F1F4F9] px-2.5 py-0.5  min-h-[40px] flex items-center gap-x-0.5 overflow-auto">
+    <div className="bg-[#F1F4F9] px-2.5 py-0.5  min-h-[40px] flex items-center gap-x-1 overflow-auto">
 
       {sections[0].map(({ label, Icon, onClick, isActive }) => (
         <ToolbarButton key={label} label={label} Icon={Icon} onClick={onClick} active={isActive} />
       ))}
       <Separator orientation="vertical" className="h-6 bg-neutral-300" />
-      {/* TODO: Font family */}
+      <FontFamilyButton />
       <Separator orientation="vertical" className="h-6 bg-neutral-300" />
-
-      {/* TODO: Heading  */}
+      <HeadingLevelButton />
       <Separator orientation="vertical" className="h-6 bg-neutral-300" />
 
       {/* TODO: Font Size */}
@@ -114,10 +109,10 @@ export default function Toolbar() {
       {sections[1].map(({ label, Icon, onClick, isActive }) => (
         <ToolbarButton key={label} label={label} Icon={Icon} onClick={onClick} active={isActive} />
       ))}
-      {/* TODO: Text Color */}
-      {/* TODO: Highlight Color */}
+      <ColorButton />
+      <HighlightColorButton />
       <Separator orientation="vertical" className="h-6 bg-neutral-300" />
-      {/* TODO: Link */}
+      <LinkButton />
       {/* TODO: Image */}
       {/* TODO: Align */}
       {/* TODO: Line height */}
@@ -144,3 +139,197 @@ function ToolbarButton({ Icon, onClick, active }: ToolbarButtonProps) {
     </button>
   )
 }
+
+
+function FontFamilyButton() {
+  const { editor } = useEditor();
+
+  const fontFamilys: { label: string, value: string }[] = [
+    { label: 'Inter', value: 'Inter' },
+    { label: 'Comic Sans', value: 'Comic Sans MS, Comic Sans' },
+    { label: 'Serif', value: 'serif' },
+    { label: 'Monospace', value: 'monospace' },
+    { label: 'Cursive', value: 'cursive' },
+    { label: 'Title Font', value: 'var(--title-font-family)' },
+    { label: 'Exo 2', value: 'Exo 2' }
+  ]
+  const currentFontFamily = fontFamilys.find(font => editor?.isActive('textStyle', { fontFamily: font.value }))?.label || 'Arial';
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          variant="ghost"
+          size="sm"
+          className=" text-sm h-7 min-w-7 shrink-0 flex items-center justify-center rounded-sm hover:bg-neutral-200/80 px-1.5 overflow-hidden">
+          <span className="text-xs">{currentFontFamily}</span>
+          <ChevronDown className="ml-2 size-4 shrink-0 opacity-50" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="start"
+        className="p-1 flex flex-col gap-1"
+      >
+        {fontFamilys.map(({ label, value }) => (
+          <button
+            key={value}
+            value={value}
+            className={cn("flex items-center  px-2 py-1 rounded-sm hover:bg-neutral-200/80", editor?.getAttributes('textStyle').fontFamily === value && "bg-neutral-200/80")}
+            style={{ fontFamily: value }}
+            onClick={() => editor?.chain().focus().setFontFamily(value).run()}
+          >
+            <span className='text-sm'>{label}</span>
+          </button>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu >
+  );
+}
+
+
+const HeadingLevelButton = () => {
+  const { editor } = useEditor();
+  const levels = [1, 2, 3, 4, 5];
+  const currentLevel = levels.find(level => editor?.isActive('heading', { level }));
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          variant="ghost"
+          size="sm"
+          className="text-sm h-7 min-w-7 shrink-0 flex items-center justify-center rounded-sm hover:bg-neutral-200/80 px-1.5"
+        >
+          {currentLevel ? `H${currentLevel}` : 'Normal'}
+          <ChevronDown className="ml-2 size-4 shrink-0 opacity-50" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="p-1 flex flex-col gap-1">
+        <button
+          className={cn(
+            "flex items-center px-2 py-1 rounded-sm hover:bg-neutral-200/80",
+            !currentLevel && "bg-neutral-200/80"
+          )}
+          onClick={() => editor?.chain().focus().setParagraph().run()}
+        >
+          <span className="text-sm">Normal</span>
+        </button>
+        {levels.map(level => (
+          <button
+            key={level}
+            className={cn(
+              "flex items-center px-2 py-1 rounded-sm hover:bg-neutral-200/80",
+              editor?.isActive('heading', { level }) && "bg-neutral-200/80"
+            )}
+            onClick={() => editor?.chain().focus().toggleHeading({ level }).run()}
+          >
+            <span className={`${level === 1 ? 'text-2xl font-bold' : level === 2 ? 'text-xl font-semibold' : level === 3 ? 'text-base font-medium' : level === 4 ? 'text-sm font-medium' : level === 5 ? 'text-xs font-medium' : 'text-xs font-medium'}`}>Heading {level}</span>
+          </button>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+const ColorButton = () => {
+  const { editor } = useEditor();
+
+  const currentColor = editor?.getAttributes('textStyle').color || 'black';
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="h-7 min-w-7 shrink-0 flex flex-col items-center justify-center  rounded hover:bg-neutral-100">
+          <span className="text-xs">A</span>
+          <div
+            className="w-5 h-0.5 rounded"
+            style={{ backgroundColor: currentColor }}
+          />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="p-2">
+        <CirclePicker
+          color={currentColor}
+          onChange={(color) => {
+            editor?.chain().focus().setColor(color.hex).run()
+          }}
+        />
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+const HighlightColorButton = () => {
+  const { editor } = useEditor();
+
+  const currentColor = editor?.getAttributes('highlight').color || 'transparent';
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="h-7 min-w-7 shrink-0 flex flex-col items-center justify-center rounded hover:bg-neutral-100">
+          <HighlighterIcon className="w-4 h-4" style={{ color: currentColor === 'transparent' ? 'black' : currentColor }} />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="p-2">
+        <CirclePicker
+          color={currentColor}
+          onChange={(color) => {
+            if (currentColor === color.hex) {
+              editor?.chain().focus().toggleHighlight().run()
+            } else {
+              editor?.chain().focus().toggleHighlight({ color: color.hex }).run()
+            }
+          }}
+        />
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+const LinkButton = () => {
+  const { editor } = useEditor();
+  const [url, setUrl] = React.useState(editor?.getAttributes('link').href || "");
+  const isActive = editor?.isActive('link');
+
+  const handleApply = () => {
+    editor?.chain().focus().setLink({ href: url }).run()
+  }
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          className={cn(
+            "text-sm h-7 min-w-7 shrink-0 flex items-center justify-center rounded-sm hover:bg-neutral-200/80 px-1.5 overflow-hidden",
+            isActive && "bg-neutral-200/80"
+          )}
+        >
+          <Link className="w-4 h-4" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="p-2.5 flex items-center gap-x-2">
+        <div className="flex  gap-2 min-w-[240px]">
+          <input
+            type="text"
+            placeholder="https://example.com"
+            value={url}
+            onChange={(e) => {
+              setUrl(e.currentTarget.value)
+
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                handleApply()
+              }
+            }}
+            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+          />
+          <Button
+            onClick={handleApply}
+          >
+            Apply
+          </Button>
+        </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};

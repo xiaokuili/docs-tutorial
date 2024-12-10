@@ -34,6 +34,7 @@ body {
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
+
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -66,15 +67,37 @@ body {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
+
 /* Basic editor styles */
 .tiptap {
   :first-child {
     margin-top: 0;
   }
+
+  /* Code and preformatted text styles */
+  code {
+    background-color: rgb(243 232 255);
+    border-radius: 0.4rem;
+    color: rgb(23 23 23);
+    font-size: 0.85rem;
+    padding: 0.25em 0.3em;
+  }
+
+  /* Link styles */
+  a {
+    color: rgb(126 34 206);
+    cursor: pointer;
+
+    &:hover {
+      color: rgb(107 33 168);
+    }
+  }
+
   /* Image styles */
   img {
     display: block;
@@ -103,7 +126,7 @@ body {
       position: relative;
       vertical-align: top;
 
-      > * {
+      >* {
         margin-bottom: 0;
       }
     }
@@ -118,7 +141,10 @@ body {
     .selectedCell:after {
       background: #e2e8f0;
       content: "";
-      left: 0; right: 0; top: 0; bottom: 0;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
       pointer-events: none;
       position: absolute;
       z-index: 2;
@@ -145,43 +171,44 @@ body {
     cursor: ew-resize;
     cursor: col-resize;
   }
-  
+
 
   /* Heading styles */
-  h1, 
-  h2, 
-  h3, 
-  h4, 
-  h5, 
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
   h6 {
     line-height: 1.1;
     margin-top: 2.5rem;
     text-wrap: pretty;
   }
 
-  h1, 
+  h1,
   h2 {
     margin-top: 3.5rem;
     margin-bottom: 1.5rem;
   }
 
-  h1 { 
-    font-size: 1.4rem; 
+  h1 {
+    font-size: 1.4rem;
   }
 
-  h2 { 
-    font-size: 1.2rem; 
+  h2 {
+    font-size: 1.2rem;
   }
 
-  h3 { 
-    font-size: 1.1rem; 
+  h3 {
+    font-size: 1.1rem;
   }
 
-  h4, 
-  h5, 
-  h6 { 
-    font-size: 1rem; 
+  h4,
+  h5,
+  h6 {
+    font-size: 1rem;
   }
+
   /* Task list styles */
   ul[data-type="taskList"] {
     list-style: none;
@@ -194,13 +221,13 @@ body {
       margin: 0.25em 0;
       padding-left: 0;
 
-      > label {
+      >label {
         flex: 0 0 auto;
         margin-right: 0.5rem;
         user-select: none;
       }
 
-      > div {
+      >div {
         flex: 1 1 auto;
       }
 
@@ -227,7 +254,7 @@ body {
     list-style: none;
   }
 
-  ul:not([data-type="taskList"]) {    
+  ul:not([data-type="taskList"]) {
     li {
       position: relative;
       padding-left: 1.5em;

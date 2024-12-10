@@ -13,9 +13,10 @@ import FontFamily from '@tiptap/extension-font-family'
 import TextStyle from '@tiptap/extension-text-style'
 import Heading from '@tiptap/extension-heading'
 import Highlight from '@tiptap/extension-highlight'
+import Color from '@tiptap/extension-color'
+import Link from '@tiptap/extension-link'
 
 import { Underline as UnderlineExtension } from '@tiptap/extension-underline'
-import { useEffect } from 'react';
 import { useEditor as useEditorStore } from '@/hook/use-editor';
 
 export default function Editor() {
@@ -43,7 +44,7 @@ export default function Editor() {
       setEditor(editor)
     },
 
-    onContentError: ({ editor, error, disableCollaboration }) => {
+    onContentError: ({ editor }) => {
       setEditor(editor)
     },
     extensions: [
@@ -61,7 +62,13 @@ export default function Editor() {
       FontFamily,
       TextStyle,
       Heading,
-      Highlight.configure({ multicolor: true })
+      Highlight.configure({ multicolor: true }),
+      Color,
+      Link.configure({
+        openOnClick: false,
+        autolink: true,
+        defaultProtocol: 'https',
+      })
     ],
     content: `
         <table>
@@ -93,10 +100,8 @@ export default function Editor() {
   })
 
   return (
-    <div role="textbox" aria-label="Rich text editor">
-      <EditorContent
-        editor={editor}
-      />
-    </div>
+    <EditorContent
+      editor={editor}
+    />
   )
 }
