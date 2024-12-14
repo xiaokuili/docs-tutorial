@@ -15,6 +15,9 @@ import Heading from '@tiptap/extension-heading'
 import Highlight from '@tiptap/extension-highlight'
 import Color from '@tiptap/extension-color'
 import Link from '@tiptap/extension-link'
+import TextAlign from '@tiptap/extension-text-align'
+import FontSize from '@/extensions/font-size'
+import LineHeight from '@/extensions/line-height'
 
 import { Underline as UnderlineExtension } from '@tiptap/extension-underline'
 import { useEditor as useEditorStore } from '@/hook/use-editor';
@@ -68,7 +71,15 @@ export default function Editor() {
         openOnClick: false,
         autolink: true,
         defaultProtocol: 'https',
-      })
+      }),
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+      }),
+      FontSize,
+      LineHeight.configure({
+        types: ['heading', 'paragraph'],
+        defaultLineHeight: '1.0',
+      }),
     ],
     content: `
         <table>
@@ -100,8 +111,10 @@ export default function Editor() {
   })
 
   return (
-    <EditorContent
-      editor={editor}
-    />
+    <div className="bg-white rounded-sm shadow-xl hover:shadow-2xl transition-shadow duration-300 min-h-[1056px] w-full relative z-10">
+      <EditorContent
+        editor={editor}
+      />
+    </div>
   )
 }
