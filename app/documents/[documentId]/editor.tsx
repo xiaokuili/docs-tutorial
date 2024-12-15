@@ -111,7 +111,7 @@ export default function Editor() {
   })
 
   return (
-    <div className="bg-white rounded-sm shadow-xl hover:shadow-2xl transition-shadow duration-300 min-h-[1056px] w-full relative z-10">
+    <div className="bg-white rounded-sm shadow-xl hover:shadow-2xl transition-shadow duration-300 min-h-[1056px] w-full relative">
       <EditorContent
         editor={editor}
       />

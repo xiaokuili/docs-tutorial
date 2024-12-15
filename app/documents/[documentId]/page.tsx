@@ -24,7 +24,7 @@ export default async function DocumentPage({ params }: Props) {
                 <Ruler />
 
                 {/* <div className="max-w-[850px] mx-auto h-full px-6 pb-20"> */}
-                <div className="flex justify-center max-w-[850px] py-4 print:py-0 mx-auto ">
+                <div className="flex justify-center max-w-[816px] py-4 print:py-0 mx-auto ">
                     <Editor />
                 </div>
             </div>
