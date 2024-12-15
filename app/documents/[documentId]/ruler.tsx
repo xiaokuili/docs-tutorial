@@ -66,7 +66,7 @@ export default function Ruler() {
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
             className="h-6 border-b border-gray-300  items-end relative select-none ">
-            <div id="ruler-container" className="max-w-[816px] mx-auto w-full h-full relative">
+            <div id="ruler-container" className="max-w-[816px] mx-auto w-full h-full relative print:hidden">
                 <Marker position={LeftMargin} isLeft={true} isDragging={isDraggingLeft} onMouseDown={handleLeftMouseDown} onDoubleClick={handleLeftDoubleClick} />
                 <Marker position={RightMargin} isLeft={false} isDragging={isDraggingRight} onMouseDown={handleRightMouseDown} onDoubleClick={handleRightDoubleClick} />
 

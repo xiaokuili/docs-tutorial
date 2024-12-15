@@ -2,6 +2,7 @@
 import Editor from './editor'
 import Toolbar from './toolbar'
 import Ruler from './ruler'
+import Navbar from './navbar'
 
 type Props = {
     params: {
@@ -13,17 +14,13 @@ export default async function DocumentPage({ params }: Props) {
     const { documentId } = await params
     console.log(documentId)
     return (
-        <div className="h-screen flex flex-col">
-            {/* 固定在顶部的工具栏 */}
-            <Toolbar />
-
-            {/* 文档编辑区域 */}
-            <div className="size-full overflow-y-auto bg-[#F9FBFD] px-4 pirnt:p-0 print:bg-white print: overflow-y-auto">
-                {/* <div className="flex-1 overflow-y-auto bg-gray-50 pt- space-y-5"> */}
-
+        <div className="min-h-screen bg-[#FAFBFB]">
+            <div className="flex flex-col px-4 pt-2 gap-2 fixed top-0 left-0 right-0 z-10 bg-[#FAFBFB] print:hidden">
+                <Navbar />
+                <Toolbar />
+            </div>
+            <div className="size-full overflow-y-auto bg-[#F9FBFD] px-4 pirnt:p-0 print:bg-white print: overflow-y-auto pt-32 print:pt-0">
                 <Ruler />
-
-                {/* <div className="max-w-[850px] mx-auto h-full px-6 pb-20"> */}
                 <div className="flex justify-center max-w-[816px] py-4 print:py-0 mx-auto ">
                     <Editor />
                 </div>
