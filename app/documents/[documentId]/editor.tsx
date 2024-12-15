@@ -78,7 +78,6 @@ export default function Editor() {
       FontSize,
       LineHeight.configure({
         types: ['heading', 'paragraph'],
-        defaultLineHeight: '1.0',
       }),
     ],
     content: `

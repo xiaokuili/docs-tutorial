@@ -22,7 +22,6 @@ import {
   List,
   ListOrdered,
   MinusIcon,
-  PlusIcon,
   ListCollapseIcon
 } from 'lucide-react';
 import React from 'react';
