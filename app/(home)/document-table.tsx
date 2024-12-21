@@ -1,5 +1,5 @@
 import { Doc } from "@/convex/_generated/dataModel";
-import { PaginationStatus } from "convex/server";
+import { PaginationStatus } from "convex/react";
 import {
     Table,
     TableBody,
@@ -7,15 +7,15 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-    TableCaption
 } from "@/components/ui/table";
-import { Underdog } from "next/font/google";
 import { LoaderIcon } from "lucide-react";
 import DocumentRow from "./document-row";
 import { Button } from "@/components/ui/button";
+
+
 interface DocumentTableProps {
     documents: Doc<"documents">[],
-    loadMore: () => void,
+    loadMore: (numItems: number) => void,
     status: PaginationStatus
 }
 

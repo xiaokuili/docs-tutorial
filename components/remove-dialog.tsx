@@ -16,6 +16,7 @@ import {
 import { Id } from "@/convex/_generated/dataModel";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { toast } from "sonner"
 
 interface RemoveDialogProps {
     documentId: Id<"documents">;
@@ -27,13 +28,12 @@ export default function RemoveDialog({ documentId, children }: RemoveDialogProps
     const [isRemoving, setIsRemoving] = useState(false);
 
 
-
     return (
         <AlertDialog>
             <AlertDialogTrigger asChild>
                 {children}
             </AlertDialogTrigger>
-            <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+            <AlertDialogContent onClick={(e: React.MouseEvent<HTMLButtonElement>) => e.stopPropagation()}>
                 <AlertDialogHeader>
                     <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                     <AlertDialogDescription>
@@ -41,13 +41,17 @@ export default function RemoveDialog({ documentId, children }: RemoveDialogProps
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={(e) => {
+                    <AlertDialogCancel onClick={(e: React.MouseEvent<HTMLButtonElement>) => e.stopPropagation()}>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                         e.stopPropagation();
                         setIsRemoving(true);
                         remove({ id: documentId })
+                            .catch(() => {
+                                toast.error("Failed to delete document. Please try again.")
+                            })
                             .finally(() => {
                                 setIsRemoving(false);
+                                
                             });
                     }} disabled={isRemoving}>
                         {isRemoving ? "Deleting..." : "Delete"}

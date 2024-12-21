@@ -6,6 +6,7 @@ import { FileIcon, FileJsonIcon, Code2Icon, FileTextIcon, PlusIcon, FilePenIcon,
 import { Menubar, MenubarMenu, MenubarContent, MenubarItem, MenubarTrigger, MenubarSub, MenubarSubTrigger, MenubarSubContent, MenubarSeparator, MenubarShortcut } from "@/components/ui/menubar";
 import { BsFilePdf } from "react-icons/bs";
 import { useEditor } from "@/hook/use-editor";
+import { OrganizationSwitcher, UserButton } from "@clerk/nextjs";
 
 export default function Navbar() {
     const { editor } = useEditor()
@@ -172,7 +173,20 @@ export default function Navbar() {
                         </Menubar>
                     </div>
                 </div>
+
+                
             </div>
+            <div className="flex items-center gap-2">
+                    <OrganizationSwitcher 
+                        afterCreateOrganizationUrl="/"
+                        afterLeaveOrganizationUrl="/"
+                        afterSelectOrganizationUrl="/"
+                        afterSelectPersonalUrl="/"
+                    />
+                    <UserButton  />
+                    
+                    
+                </div>
         </nav>
     )
 }

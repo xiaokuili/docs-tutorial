@@ -13,9 +13,12 @@ export const create = mutation({
         if (!userId) {
             throw new Error("Unauthorized");
         }
+        const organizationId = (userId.organization_id ?? undefined) as string | undefined
+
         const documentId = await ctx.db.insert("documents", {
             title: args.title ?? "Untitled",
             ownerId: userId.subject,
+            organizationId: organizationId,
             initialContent: args.initialContent,
         });
         return documentId;
@@ -24,14 +27,47 @@ export const create = mutation({
 
 
 export const get = query({
-    args: { paginationOpts: paginationOptsValidator },
-    handler: async (ctx, args) => {
-      const documents = await ctx.db
-        .query("documents")
-        .order("desc")
-        .paginate(args.paginationOpts);
+    args: { paginationOpts: paginationOptsValidator,  search: v.optional(v.string()) },
+    handler: async (ctx, {search, paginationOpts}) => {
+      const user = await ctx.auth.getUserIdentity();
+      if (!user) {
+        throw new Error("Unauthorized");
+      }
 
-      return documents;
+      const organizationId = (user.organization_id ?? undefined) as string | undefined
+
+    //   search within organization
+      if (search && organizationId) {
+        return await ctx.db
+        .query("documents")
+        .withSearchIndex("search_title", 
+            (q) => q.search("title", search).eq("organizationId", organizationId))
+        .paginate(paginationOpts)
+      }
+
+      // search within personal
+      if (search) {
+        return await ctx.db
+        .query("documents")
+        .withSearchIndex("search_title", (q) => q.search("title", search).eq("ownerId", user.subject))
+        .paginate(paginationOpts)
+      }
+
+      // All docs inside organization 
+      if (organizationId) {
+        return await ctx.db
+        .query("documents")
+        .withIndex("by_organization_id", (q) => q.eq("organizationId", organizationId))
+        .order("desc")
+        .paginate(paginationOpts)
+      }
+
+      // All doc inside personal
+      return await ctx.db
+         .query("documents") 
+         .withIndex("by_owner_id", (q) => q.eq("ownerId", user.subject))
+         .order("desc")
+         .paginate(paginationOpts)
     },
   });
 
@@ -44,11 +80,18 @@ export const removeById = mutation({
         if (!userId) {
             throw new Error("Unauthorized");
         }
+        const organizationId = (userId.organization_id ?? undefined) as string | undefined
+
+
+        
         const document = await ctx.db.get(args.id);
         if (!document) {
             throw new Error("Document not found");
         }
-        if (document.ownerId !== userId.subject) {
+        const isOwner = document.ownerId === userId.subject
+        const isOrganization = document.organizationId === organizationId 
+        
+        if (!isOwner && !isOrganization) {
             throw new Error("Unauthorized");
         }
         await ctx.db.delete(args.id);

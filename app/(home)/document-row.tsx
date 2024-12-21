@@ -1,7 +1,7 @@
 import { Doc } from "@/convex/_generated/dataModel";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { SiGoogledocs } from "react-icons/si";
-import { Building2Icon, UserCircleIcon, MoreVertical } from "lucide-react";
+import { Building2Icon, UserCircleIcon } from "lucide-react";
 import { format } from "date-fns";
 import DocumentMenu from "./document-menu";
 import { useRouter } from "next/navigation";
