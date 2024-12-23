@@ -19,11 +19,14 @@ import TextAlign from '@tiptap/extension-text-align'
 import FontSize from '@/extensions/font-size'
 import LineHeight from '@/extensions/line-height'
 
+import { useLiveblocksExtension } from "@liveblocks/react-tiptap";
 import { Underline as UnderlineExtension } from '@tiptap/extension-underline'
 import { useEditor as useEditorStore } from '@/hook/use-editor';
 
 export default function Editor() {
   const { setEditor } = useEditorStore()
+  const liveblocks = useLiveblocksExtension();
+
   const editor = useEditor({
     onCreate: (props) => {
       setEditor(props.editor)
@@ -51,6 +54,7 @@ export default function Editor() {
       setEditor(editor)
     },
     extensions: [
+      liveblocks, 
       StarterKit,
       TaskList,
       TaskItem.configure({ nested: true }),
