@@ -11,7 +11,6 @@ import TableRow from '@tiptap/extension-table-row'
 import ImageResize from 'tiptap-extension-resize-image';
 import FontFamily from '@tiptap/extension-font-family'
 import TextStyle from '@tiptap/extension-text-style'
-import Heading from '@tiptap/extension-heading'
 import Highlight from '@tiptap/extension-highlight'
 import Color from '@tiptap/extension-color'
 import Link from '@tiptap/extension-link'
@@ -22,6 +21,7 @@ import LineHeight from '@/extensions/line-height'
 import { useLiveblocksExtension } from "@liveblocks/react-tiptap";
 import { Underline as UnderlineExtension } from '@tiptap/extension-underline'
 import { useEditor as useEditorStore } from '@/hook/use-editor';
+import { Threads } from './thread'
 
 export default function Editor() {
   const { setEditor } = useEditorStore()
@@ -55,7 +55,10 @@ export default function Editor() {
     },
     extensions: [
       liveblocks, 
-      StarterKit,
+      StarterKit.configure({
+        history:false, 
+
+      }),
       TaskList,
       TaskItem.configure({ nested: true }),
       Table.configure({
@@ -68,7 +71,6 @@ export default function Editor() {
       UnderlineExtension,
       FontFamily,
       TextStyle,
-      Heading,
       Highlight.configure({ multicolor: true }),
       Color,
       Link.configure({
@@ -118,6 +120,7 @@ export default function Editor() {
       <EditorContent
         editor={editor}
       />
+      <Threads editor={editor} />
     </div>
   )
 }
