@@ -9,7 +9,7 @@ export const create = mutation({
         initialContent: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
-        const userId =await ctx.auth.getUserIdentity();
+        const userId = await ctx.auth.getUserIdentity();
         if (!userId) {
             throw new Error("Unauthorized");
         }
@@ -27,49 +27,49 @@ export const create = mutation({
 
 
 export const get = query({
-    args: { paginationOpts: paginationOptsValidator,  search: v.optional(v.string()) },
-    handler: async (ctx, {search, paginationOpts}) => {
-      const user = await ctx.auth.getUserIdentity();
-      if (!user) {
-        throw new Error("Unauthorized");
-      }
+    args: { paginationOpts: paginationOptsValidator, search: v.optional(v.string()) },
+    handler: async (ctx, { search, paginationOpts }) => {
+        const user = await ctx.auth.getUserIdentity();
+        if (!user) {
+            throw new Error("Unauthorized");
+        }
 
-      const organizationId = (user.organization_id ?? undefined) as string | undefined
+        const organizationId = (user.organization_id ?? undefined) as string | undefined
 
-    //   search within organization
-      if (search && organizationId) {
+        //   search within organization
+        if (search && organizationId) {
+            return await ctx.db
+                .query("documents")
+                .withSearchIndex("search_title",
+                    (q) => q.search("title", search).eq("organizationId", organizationId))
+                .paginate(paginationOpts)
+        }
+
+        // search within personal
+        if (search) {
+            return await ctx.db
+                .query("documents")
+                .withSearchIndex("search_title", (q) => q.search("title", search).eq("ownerId", user.subject))
+                .paginate(paginationOpts)
+        }
+
+        // All docs inside organization 
+        if (organizationId) {
+            return await ctx.db
+                .query("documents")
+                .withIndex("by_organization_id", (q) => q.eq("organizationId", organizationId))
+                .order("desc")
+                .paginate(paginationOpts)
+        }
+
+        // All doc inside personal
         return await ctx.db
-        .query("documents")
-        .withSearchIndex("search_title", 
-            (q) => q.search("title", search).eq("organizationId", organizationId))
-        .paginate(paginationOpts)
-      }
-
-      // search within personal
-      if (search) {
-        return await ctx.db
-        .query("documents")
-        .withSearchIndex("search_title", (q) => q.search("title", search).eq("ownerId", user.subject))
-        .paginate(paginationOpts)
-      }
-
-      // All docs inside organization 
-      if (organizationId) {
-        return await ctx.db
-        .query("documents")
-        .withIndex("by_organization_id", (q) => q.eq("organizationId", organizationId))
-        .order("desc")
-        .paginate(paginationOpts)
-      }
-
-      // All doc inside personal
-      return await ctx.db
-         .query("documents") 
-         .withIndex("by_owner_id", (q) => q.eq("ownerId", user.subject))
-         .order("desc")
-         .paginate(paginationOpts)
+            .query("documents")
+            .withIndex("by_owner_id", (q) => q.eq("ownerId", user.subject))
+            .order("desc")
+            .paginate(paginationOpts)
     },
-  });
+});
 
 export const removeById = mutation({
     args: {
@@ -83,14 +83,14 @@ export const removeById = mutation({
         const organizationId = (userId.organization_id ?? undefined) as string | undefined
 
 
-        
+
         const document = await ctx.db.get(args.id);
         if (!document) {
             throw new Error("Document not found");
         }
         const isOwner = document.ownerId === userId.subject
-        const isOrganization = document.organizationId === organizationId 
-        
+        const isOrganization = document.organizationId === organizationId
+
         if (!isOwner && !isOrganization) {
             throw new Error("Unauthorized");
         }
@@ -118,5 +118,20 @@ export const updateById = mutation({
         await ctx.db.patch(args.id, {
             title: args.title,
         });
+    }
+});
+
+
+export const getById = query({
+    args: {
+        id: v.id("documents"),
+    },
+    handler: async (ctx, args) => {
+
+
+        const document = await ctx.db.get(args.id);
+  
+
+        return document;
     }
 });
