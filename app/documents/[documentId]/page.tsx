@@ -14,7 +14,7 @@ type Props = {
 export default async function DocumentPage({ params }: Props) {
     const { documentId } = await params
     console.log(documentId)
-    throw new Error("oops")
+
     return (
         <div className="min-h-screen bg-[#FAFBFB]">
             <div className="flex flex-col px-4 pt-2 gap-2 fixed top-0 left-0 right-0 z-10 bg-[#FAFBFB] print:hidden">
@@ -31,4 +31,5 @@ export default async function DocumentPage({ params }: Props) {
             </div>
         </div>
     );
+
 }
