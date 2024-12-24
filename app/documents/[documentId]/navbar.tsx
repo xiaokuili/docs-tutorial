@@ -7,6 +7,8 @@ import { Menubar, MenubarMenu, MenubarContent, MenubarItem, MenubarTrigger, Menu
 import { BsFilePdf } from "react-icons/bs";
 import { useEditor } from "@/hook/use-editor";
 import { OrganizationSwitcher, UserButton } from "@clerk/nextjs";
+import { Avatars } from "./avatars";
+import { Inbox } from "./inbox";
 
 export default function Navbar() {
     const { editor } = useEditor()
@@ -177,6 +179,8 @@ export default function Navbar() {
                 
             </div>
             <div className="flex items-center gap-2">
+                    <Avatars />
+                    <Inbox />
                     <OrganizationSwitcher 
                         afterCreateOrganizationUrl="/"
                         afterLeaveOrganizationUrl="/"
