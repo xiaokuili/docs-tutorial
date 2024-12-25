@@ -12,6 +12,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useRouter } from "next/navigation";
 
 import { Id } from "@/convex/_generated/dataModel";
 import { useMutation } from "convex/react";
@@ -26,6 +27,7 @@ interface RemoveDialogProps {
 export default function RemoveDialog({ documentId, children }: RemoveDialogProps) {
     const remove = useMutation(api.documents.removeById);
     const [isRemoving, setIsRemoving] = useState(false);
+    const router = useRouter()
 
 
     return (
@@ -33,7 +35,7 @@ export default function RemoveDialog({ documentId, children }: RemoveDialogProps
             <AlertDialogTrigger asChild>
                 {children}
             </AlertDialogTrigger>
-            <AlertDialogContent onClick={(e: React.MouseEvent<HTMLButtonElement>) => e.stopPropagation()}>
+            <AlertDialogContent onClick={(e) => e.stopPropagation()}>
                 <AlertDialogHeader>
                     <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                     <AlertDialogDescription>
@@ -45,9 +47,13 @@ export default function RemoveDialog({ documentId, children }: RemoveDialogProps
                     <AlertDialogAction onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                         e.stopPropagation();
                         setIsRemoving(true);
+                        router.push("/")
                         remove({ id: documentId })
                             .catch(() => {
                                 toast.error("Failed to delete document. Please try again.")
+                            }).then(() => {
+
+                                toast.success("Document deleted")
                             })
                             .finally(() => {
                                 setIsRemoving(false);

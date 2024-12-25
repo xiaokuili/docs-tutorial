@@ -21,12 +21,24 @@ import LineHeight from '@/extensions/line-height'
 import { useLiveblocksExtension } from "@liveblocks/react-tiptap";
 import { Underline as UnderlineExtension } from '@tiptap/extension-underline'
 import { useEditor as useEditorStore } from '@/hook/use-editor';
-import { Threads } from './thread'
+import { useStorage } from '@liveblocks/react';
+import {Threads} from './thread';
+import { LEFT_MARGIN_DEFAULT, RIGHT_MARGIN_DEFAULT } from '@/app/(home)/constants/margins';
+interface EditorProps { 
+  initialContent: string
+}
 
-export default function Editor() {
+export default function Editor({initialContent}: EditorProps) {
   const { setEditor } = useEditorStore()
-  const liveblocks = useLiveblocksExtension();
-
+  const liveblocks = useLiveblocksExtension(
+    {
+      initialContent: initialContent, 
+      offlineSupport_experimental: true
+    }
+  );
+  const leftMargin = useStorage((root) => root.leftMargin)
+  const rightMargin = useStorage((root) => root.rightMargin)
+  
   const editor = useEditor({
     onCreate: (props) => {
       setEditor(props.editor)
@@ -107,7 +119,7 @@ export default function Editor() {
     editorProps: {
       attributes: {
         class: `prose max-w-none min-h-[297mm] p-[96px] text-[11pt] text-gray-800 font-normal leading-[1.5] outline-none focus:outline-none focus:ring-0 selection:bg-blue-200 print:shadow-none print:m-0 print:p-[0.5in] [&>*]:min-h-[1em] bg-white shadow-lg`,
-        style: 'padding-left: 56px; padding-right: 56px;'
+        style: `padding-left: ${leftMargin ?? LEFT_MARGIN_DEFAULT}px; padding-right: ${rightMargin ?? RIGHT_MARGIN_DEFAULT  }px;`
       },
     },
     immediatelyRender: false, // 👈 添加这行

@@ -108,6 +108,7 @@ export const updateById = mutation({
         if (!userId) {
             throw new Error("Unauthorized");
         }
+
         const document = await ctx.db.get(args.id);
         if (!document) {
             throw new Error("Document not found");
@@ -115,6 +116,7 @@ export const updateById = mutation({
         if (document.ownerId !== userId.subject) {
             throw new Error("Unauthorized");
         }
+
         await ctx.db.patch(args.id, {
             title: args.title,
         });
@@ -127,11 +129,10 @@ export const getById = query({
         id: v.id("documents"),
     },
     handler: async (ctx, args) => {
-
-
         const document = await ctx.db.get(args.id);
-  
-
+        if (!document) {
+            throw new Error("Document not found");
+        }
         return document;
     }
 });

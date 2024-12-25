@@ -46,7 +46,7 @@ export default function TemplateGallery() {
                                     onClick={() => handleTemplateClick(
                                         {
                                             title: template.label,
-                                            initialContent: "",
+                                            initialContent: template.initialContent || "",
                                         }
                                     )}
                                     style={{

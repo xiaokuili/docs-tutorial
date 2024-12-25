@@ -18,6 +18,7 @@ declare module '@tiptap/core' {
 
 export interface LineHeightOptions {
   types: string[];
+  defaultLineHeight: string;
 }
 
 export default Extension.create<LineHeightOptions>({

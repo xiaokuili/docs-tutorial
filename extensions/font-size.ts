@@ -18,6 +18,7 @@ declare module '@tiptap/core' {
 
 export interface FontSizeOptions {
   types: string[];
+  defaultFontSize: string;
 }
 
 export default Extension.create<FontSizeOptions>({
@@ -26,6 +27,7 @@ export default Extension.create<FontSizeOptions>({
   addOptions() {
     return {
       types: ['textStyle'],
+      defaultFontSize: "16px"
     }
   },
 

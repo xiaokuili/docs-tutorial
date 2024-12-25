@@ -1,14 +1,20 @@
 'use client'
 import { FaCaretDown } from "react-icons/fa";
 import { useRef, useState } from "react";
-
+import { useStorage, useMutation } from "@liveblocks/react";
+import { LEFT_MARGIN_DEFAULT, RIGHT_MARGIN_DEFAULT } from "@/app/(home)/constants/margins";
 
 const markers = Array.from({ length: 83 }, (_, i) => i)
 
 export default function Ruler() {
-
-    const [LeftMargin, setLeftMargin] = useState(56)
-    const [RightMargin, setRightMargin] = useState(56)
+    const LeftMargin = useStorage((root) => root.leftMargin )?? LEFT_MARGIN_DEFAULT
+    const setLeftMargin = useMutation(({storage}, position:number) => {
+        storage.set("leftMargin", position)
+    }, [])
+    const RightMargin = useStorage((root) => root.rightMargin) ?? RIGHT_MARGIN_DEFAULT
+    const setRightMargin = useMutation(({storage}, position:number) => {
+        storage.set("rightMargin", position)
+    }, [])
     const [isDraggingLeft, setIsDraggingLeft] = useState(false)
     const [isDraggingRight, setIsDraggingRight] = useState(false)
     const rulerRef = useRef<HTMLDivElement>(null)
@@ -55,10 +61,10 @@ export default function Ruler() {
     }
 
     const handleLeftDoubleClick = () => {
-        setLeftMargin(56)
+        setLeftMargin(LEFT_MARGIN_DEFAULT)
     }
     const handleRightDoubleClick = () => {
-        setRightMargin(56)
+        setRightMargin(RIGHT_MARGIN_DEFAULT)
     }
     return (
         <div ref={rulerRef}

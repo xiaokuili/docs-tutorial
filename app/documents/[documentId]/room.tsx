@@ -9,6 +9,8 @@ import {
 import { useParams } from "next/navigation";
 import FullscreenLoader from "@/components/fullscreen-loader";
 import { getUsers } from "./action";
+import { RIGHT_MARGIN_DEFAULT } from "@/app/(home)/constants/margins";
+import { LEFT_MARGIN_DEFAULT } from "@/app/(home)/constants/margins";
 
 type User = {
   id: string;
@@ -54,7 +56,7 @@ export function Room({ children }: { children: ReactNode }) {
       }}
       resolveRoomsInfo={() => []}
     >
-      <RoomProvider id={params.documentId as string}>
+      <RoomProvider id={params.documentId as string} initialStorage={{leftMargin: LEFT_MARGIN_DEFAULT, rightMargin: RIGHT_MARGIN_DEFAULT}}>
         <ClientSideSuspense fallback={<FullscreenLoader label="Room document..." />}>
           {children}
         </ClientSideSuspense>
