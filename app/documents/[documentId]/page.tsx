@@ -1,12 +1,19 @@
 "use client"
 import Editor from "./editor";
 import Toolbar from "./toolbar"
+import Navbar from "./navbar"
 
 export default function Page() {
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
-      <Toolbar/>
-      <Editor />
+    <div className="flex flex-col h-screen bg-gray-100">
+        <div className="sticky top-0 z-50">
+            <Navbar/>
+            <Toolbar/>
+        </div>
+   
+      <div className="flex-1 overflow-y-auto">
+        <Editor />
+      </div>
     </div>
   );
 }
