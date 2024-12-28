@@ -1,138 +1,82 @@
-'use client'
+
+import FontFamily from '@tiptap/extension-font-family'
+import TextStyle from '@tiptap/extension-text-style';
+import Text from '@tiptap/extension-text'
+import FontSize from '@/extension/font-size'
+import LineHeight from '@/extension/line-height'
+import Underline from '@tiptap/extension-underline'
+import Highlight from '@tiptap/extension-highlight'
+import Link from '@tiptap/extension-link'
+import ImageResize from 'tiptap-extension-resize-image';
+import TaskItem from '@tiptap/extension-task-item'
+import TaskList from '@tiptap/extension-task-list'
+import TextAlign from '@tiptap/extension-text-align'
+
+import { Color } from '@tiptap/extension-color'
+
+
+
 
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
-import TaskItem from '@tiptap/extension-task-item'
-import TaskList from '@tiptap/extension-task-list'
-import Table from '@tiptap/extension-table'
-import TableCell from '@tiptap/extension-table-cell'
-import TableHeader from '@tiptap/extension-table-header'
-import TableRow from '@tiptap/extension-table-row'
-import ImageResize from 'tiptap-extension-resize-image';
-import FontFamily from '@tiptap/extension-font-family'
-import TextStyle from '@tiptap/extension-text-style'
-import Highlight from '@tiptap/extension-highlight'
-import Color from '@tiptap/extension-color'
-import Link from '@tiptap/extension-link'
-import TextAlign from '@tiptap/extension-text-align'
-import FontSize from '@/extensions/font-size'
-import LineHeight from '@/extensions/line-height'
 
-import { useLiveblocksExtension } from "@liveblocks/react-tiptap";
-import { Underline as UnderlineExtension } from '@tiptap/extension-underline'
-import { useEditor as useEditorStore } from '@/hook/use-editor';
-import { useStorage } from '@liveblocks/react';
-import {Threads} from './thread';
-import { LEFT_MARGIN_DEFAULT, RIGHT_MARGIN_DEFAULT } from '@/app/(home)/constants/margins';
-interface EditorProps { 
-  initialContent: string
-}
+export default function Editor() {
+  const leftPadding = 56;
+  const rightPadding = 56;
 
-export default function Editor({initialContent}: EditorProps) {
-  const { setEditor } = useEditorStore()
-  const liveblocks = useLiveblocksExtension(
-    {
-      initialContent: initialContent, 
-      offlineSupport_experimental: true
-    }
-  );
-  const leftMargin = useStorage((root) => root.leftMargin)
-  const rightMargin = useStorage((root) => root.rightMargin)
-  
   const editor = useEditor({
-    onCreate: (props) => {
-      setEditor(props.editor)
-    },
-    onDestroy: () => {
-      setEditor(null)
-    },
-    onUpdate: ({ editor }) => {
-      setEditor(editor)
-    },
-    onSelectionUpdate: ({ editor }) => {
-      setEditor(editor)
-    },
-    onTransaction: ({ editor }) => {
-      setEditor(editor)
-    },
-    onFocus: ({ editor }) => {
-      setEditor(editor)
-    },
-    onBlur: ({ editor }) => {
-      setEditor(editor)
-    },
-
-    onContentError: ({ editor }) => {
-      setEditor(editor)
-    },
     extensions: [
-      liveblocks, 
-      StarterKit.configure({
-        history:false, 
-
-      }),
-      TaskList,
-      TaskItem.configure({ nested: true }),
-      Table.configure({
-        resizable: true,
-      }),
-      TableCell,
-      TableHeader,
-      TableRow,
-      ImageResize,
-      UnderlineExtension,
-      FontFamily,
+      StarterKit,
+      Text,
       TextStyle,
-      Highlight.configure({ multicolor: true }),
+      FontFamily,
+      FontSize,
+      LineHeight,
+      Underline,
       Color,
+      Highlight.configure({ multicolor: true }),
       Link.configure({
         openOnClick: false,
-        autolink: true,
-        defaultProtocol: 'https',
+        protocols: ['http', 'https'],
+      }),
+      ImageResize,
+      TaskList,
+      TaskItem.configure({
+        nested: true,
       }),
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),
-      FontSize,
-      LineHeight.configure({
-        types: ['heading', 'paragraph'],
-      }),
     ],
     content: `
-        <table>
-        <tbody>
-            <tr>
-            <th>Name</th>
-            <th colspan="3">Description</th>
-            </tr>
-            <tr>
-            <td>Cyndi Lauper</td>
-            <td>Singer</td>
-            <td>Songwriter</td>
-            <td>Actress</td>
-            </tr>
-        </tbody>
-        </table>
-        <p>This is a basic example of implementing images. Drag to re-order.</p>
-        <img src="https://placehold.co/800x400" />
+        <h2 style="text-align: center">Heading</h2>
+        <p style="text-align: center">first paragraph</p>
+        <p style="text-align: right">second paragraph</p>
+        <ul>
+          <li>A list item</li>
+          <li>And another one</li>
+        </ul>
+         <ul data-type="taskList">
+          <li data-type="taskItem" data-checked="true">A list item</li>
+          <li data-type="taskItem" data-checked="false">And another one</li>
+        </ul>
+        <p><span style="color: #958DF1">Oh, for some reason that’s purple.</span></p>
+        <p><span style="color: #FF0000">Oh, for some reason that’s red.</span></p>
+        <p><mark style="background-color: red;">And this is highlighted too, but in a different color.</mark></p>
+        <p><mark data-color="#ffa8a8">And this one has a data attribute.</mark></p>
+        <p><mark data-color="#958DF1" data-background-color="#958DF1">And this one has a data attribute.</mark></p>
+        <p><mark data-color="#ffa8a8" data-background-color="#ffa8a8" data-color="#ffa8a8">And this one has a data attribute.</mark></p>
+        <p>Wow, this editor has support for links to the whole <a href="https://en.wikipedia.org/wiki/World_Wide_Web">world wide web</a>. We tested a lot of URLs and I think you can add *every URL* you want. Isn’t that cool? Let’s try <a href="https://statamic.com/">another one!</a> Yep, seems to work.</p>
+        <img src="https://images.pexels.com/photos/28594392/pexels-photo-28594392.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" /
     `,
     editorProps: {
       attributes: {
-        class: `prose max-w-none min-h-[297mm] p-[96px] text-[11pt] text-gray-800 font-normal leading-[1.5] outline-none focus:outline-none focus:ring-0 selection:bg-blue-200 print:shadow-none print:m-0 print:p-[0.5in] [&>*]:min-h-[1em] bg-white shadow-lg`,
-        style: `padding-left: ${leftMargin ?? LEFT_MARGIN_DEFAULT}px; padding-right: ${rightMargin ?? RIGHT_MARGIN_DEFAULT  }px;`
+        class: 'focus:outline-none print:border-0 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.1)] mx-auto my-8 w-[calc(min(100%,816px))] py-[clamp(12px,4%,32px)] cursor-text min-h-[1054px] transition-shadow hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] focus-within:shadow-[0_4px_12px_rgba(0,0,0,0.15)] rounded-sm ',
+        style: `padding-left: ${leftPadding}px; padding-right: ${rightPadding}px;`
       },
     },
-    immediatelyRender: false, // 👈 添加这行
-
-
   })
 
-  return (
-    <div className="bg-white rounded-sm shadow-xl hover:shadow-2xl transition-shadow duration-300 min-h-[1056px] w-full relative">
-      <EditorContent
-        editor={editor}
-      />
-      <Threads editor={editor} />
-    </div>
-  )
+  return <EditorContent editor={editor} />
 }
+

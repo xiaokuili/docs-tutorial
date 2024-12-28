@@ -1,33 +1,50 @@
-import { Extension } from "@tiptap/core";
-import "@tiptap/extension-text-style";
+import '@tiptap/extension-text-style'
+
+import { Extension } from '@tiptap/core'
+
+export type FontSizeOptions = {
+  /**
+   * A list of node names where the font size can be applied.
+   * @default ['textStyle']
+   * @example ['heading', 'paragraph']
+   */
+  types: string[],
+  defaultOptions: {
+    fontSize: string;
+  } 
+}
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     fontSize: {
       /**
        * Set the font size
+       * @param fontSize The font size
+       * @example editor.commands.setFontSize('16px')
        */
-      setFontSize: (size: string) => ReturnType;
+      setFontSize: (fontSize: string) => ReturnType,
       /**
        * Unset the font size
+       * @example editor.commands.unsetFontSize()
        */
-      unsetFontSize: () => ReturnType;
+      unsetFontSize: () => ReturnType,
     }
   }
 }
 
-export interface FontSizeOptions {
-  types: string[];
-  defaultFontSize: string;
-}
-
+/**
+ * This extension allows you to set a font size for text.
+ * @see https://www.tiptap.dev/api/extensions/font-size
+ */
 export default Extension.create<FontSizeOptions>({
   name: 'fontSize',
 
   addOptions() {
     return {
       types: ['textStyle'],
-      defaultFontSize: "16px"
+      defaultOptions: {
+        fontSize: '16px',
+      },
     }
   },
 
@@ -38,11 +55,12 @@ export default Extension.create<FontSizeOptions>({
         attributes: {
           fontSize: {
             default: null,
-            parseHTML: element => element.style.fontSize?.replace(/['"]+/g, '') || this.options.defaultFontSize,
+            parseHTML: element => element.style.fontSize || this.options.defaultOptions.fontSize,
             renderHTML: attributes => {
               if (!attributes.fontSize) {
                 return {}
               }
+
               return {
                 style: `font-size: ${attributes.fontSize}`,
               }
@@ -55,7 +73,7 @@ export default Extension.create<FontSizeOptions>({
 
   addCommands() {
     return {
-      setFontSize: (fontSize: string) => ({ chain }) => {
+      setFontSize: fontSize => ({ chain }) => {
         return chain()
           .setMark('textStyle', { fontSize })
           .run()
