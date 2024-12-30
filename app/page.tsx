@@ -1,14 +1,13 @@
 "use client"
-import Editor from "./documents/[documentId]/editor"
-import Navbar from "./navbar"
-
+import Link from "next/link"  
 export default function Home() {
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
-        <Navbar />
-        
-        <Editor />
-
+    <div className="h-screen flex flex-col">
+      <div className="flex-1">
+        <Link href="/documents/1" className="block p-4 hover:bg-neutral-100 rounded-lg">
+          Click to open document
+        </Link>
+      </div>
     </div>
-  );
+  )
 }

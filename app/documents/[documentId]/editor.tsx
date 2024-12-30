@@ -1,7 +1,6 @@
 
 import FontFamily from '@tiptap/extension-font-family'
 import TextStyle from '@tiptap/extension-text-style';
-import Text from '@tiptap/extension-text'
 import FontSize from '@/extension/font-size'
 import LineHeight from '@/extension/line-height'
 import Underline from '@tiptap/extension-underline'
@@ -13,7 +12,7 @@ import TaskList from '@tiptap/extension-task-list'
 import TextAlign from '@tiptap/extension-text-align'
 
 import { Color } from '@tiptap/extension-color'
-
+import {useEditorStore } from "@/hook/use-editor"
 
 
 
@@ -23,11 +22,37 @@ import StarterKit from '@tiptap/starter-kit'
 export default function Editor() {
   const leftPadding = 56;
   const rightPadding = 56;
-
+  const {setEditor} = useEditorStore()
   const editor = useEditor({
+    onCreate: (props) => {
+      setEditor(props.editor)
+    },
+    onDestroy: () => {
+      setEditor(null)
+    },
+    onUpdate: ({ editor }) => {
+      setEditor(editor)
+    },
+    onSelectionUpdate: ({ editor }) => {
+      setEditor(editor)
+    },
+    onTransaction: ({ editor }) => {
+      setEditor(editor)
+    },
+    onFocus: ({ editor }) => {
+      setEditor(editor)
+    },
+    onBlur: ({ editor }) => {
+      setEditor(editor)
+    },
+
+    onContentError: ({ editor }) => {
+      setEditor(editor)
+    },
+    
+    immediatelyRender: false,
     extensions: [
       StarterKit,
-      Text,
       TextStyle,
       FontFamily,
       FontSize,
@@ -60,6 +85,12 @@ export default function Editor() {
           <li data-type="taskItem" data-checked="true">A list item</li>
           <li data-type="taskItem" data-checked="false">And another one</li>
         </ul>
+        <p><span style="font-family: Arial">This text uses Arial font.</span></p>
+        <p><span style="font-family: 'Times New Roman'">This text uses Times New Roman font.</span></p>
+        <p><span style="font-size: 24px">This text is 24px in size.</span></p>
+        <p><span style="font-size: 12px">This text is 12px in size.</span></p>
+        <p><span style="line-height: 2">This text has double line height spacing.</span></p>
+        <p><span style="line-height: 0.8">This text has condensed line height spacing.</span></p>
         <p><span style="color: #958DF1">Oh, for some reason that’s purple.</span></p>
         <p><span style="color: #FF0000">Oh, for some reason that’s red.</span></p>
         <p><mark style="background-color: red;">And this is highlighted too, but in a different color.</mark></p>
@@ -71,10 +102,11 @@ export default function Editor() {
     `,
     editorProps: {
       attributes: {
-        class: 'focus:outline-none print:border-0 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.1)] mx-auto my-8 w-[calc(min(100%,816px))] py-[clamp(12px,4%,32px)] cursor-text min-h-[1054px] transition-shadow hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] focus-within:shadow-[0_4px_12px_rgba(0,0,0,0.15)] rounded-sm ',
+        class: 'focus:outline-none print:border-0 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.1)] mx-auto mt-4  mb-12 w-[calc(min(100%,816px))] py-[clamp(12px,4%,32px)] cursor-text min-h-[1054px] transition-shadow hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] focus-within:shadow-[0_4px_12px_rgba(0,0,0,0.15)] rounded-sm ',
         style: `padding-left: ${leftPadding}px; padding-right: ${rightPadding}px;`
       },
     },
+
   })
 
   return <EditorContent editor={editor} />
