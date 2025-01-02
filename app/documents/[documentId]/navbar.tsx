@@ -12,6 +12,7 @@ import {
     MenubarTrigger,
 } from "@/components/ui/menubar"
 import DocumentTitle from './document-title'
+import { UserButton,OrganizationSwitcher } from "@clerk/clerk-react";
 
 
 
@@ -101,7 +102,10 @@ export default function Navbar() {
                     </div>
                 </div>
             </div>
-
+            <div className="flex items-center gap-2">
+                <OrganizationSwitcher />
+                <UserButton />
+            </div>
 
 
         </div>

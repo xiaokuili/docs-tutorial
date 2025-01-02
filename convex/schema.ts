@@ -2,16 +2,18 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
-  documents: defineTable({
-    title: v.string(),
-    initialContent: v.string(),
-    userId: v.string(),
-    orgId: v.string(),
-    roomId: v.string(),
-    createdAt: v.number(),
-    updatedAt: v.number(),
-  }).index("by_user_org", ["userId", "orgId"])
-    .index("by_title", ["title"])
-    .index("by_user", ["userId"])
-    .index("by_org", ["orgId"])
+    documents: defineTable({
+        title: v.string(),
+        initialContent: v.optional(v.string()),
+        ownerId: v.string(),
+        roomId: v.optional(v.string()),
+        organizationId: v.optional(v.string()),
+    })
+        .index("by_owner_id", ["ownerId"])
+        .index("by_organization_id", ["organizationId"])
+        .searchIndex("search_title", {
+            searchField: "title",
+            filterFields: ["ownerId", "organizationId"]
+        })
+        
 });

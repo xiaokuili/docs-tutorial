@@ -1,4 +1,4 @@
-
+"use client"
 import FontFamily from '@tiptap/extension-font-family'
 import TextStyle from '@tiptap/extension-text-style';
 import FontSize from '@/extension/font-size'
@@ -10,10 +10,11 @@ import ImageResize from 'tiptap-extension-resize-image';
 import TaskItem from '@tiptap/extension-task-item'
 import TaskList from '@tiptap/extension-task-list'
 import TextAlign from '@tiptap/extension-text-align'
+import { Extension } from '@tiptap/react'
 
 import { Color } from '@tiptap/extension-color'
 import {useEditorStore } from "@/hook/use-editor"
-
+import { useLiveblocksExtension } from "@liveblocks/react-tiptap";
 
 
 import { useEditor, EditorContent } from '@tiptap/react'
@@ -23,6 +24,11 @@ export default function Editor() {
   const leftPadding = 56;
   const rightPadding = 56;
   const {setEditor} = useEditorStore()
+  const liveblocks = useLiveblocksExtension(
+    {
+      offlineSupport_experimental: true
+    }
+  );
   const editor = useEditor({
     onCreate: (props) => {
       setEditor(props.editor)
@@ -52,7 +58,11 @@ export default function Editor() {
     
     immediatelyRender: false,
     extensions: [
-      StarterKit,
+      liveblocks as Extension,
+      StarterKit.configure({
+        // The Liveblocks extension comes with its own history handling
+        history: false,
+      }),
       TextStyle,
       FontFamily,
       FontSize,

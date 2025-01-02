@@ -1,3 +1,4 @@
+"use client"
 import { Doc } from "@/convex/_generated/dataModel";
 import {
     Table,
@@ -15,6 +16,10 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useRouter } from "next/navigation";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { toast } from "sonner";
 
 interface DocumentTableProps {
     documents: Doc<"documents">[],
@@ -24,8 +29,7 @@ interface DocumentTableProps {
 }
 
 export default function DocumentTable({ documents, status, loadMore }: DocumentTableProps) {
-
-    console.log(status)
+    
     return <div className="max-w-screen-xl mx-auto px-16 py-6 flex flex-col gap-5 ">
         <Table>
             <TableHeader>
@@ -38,12 +42,17 @@ export default function DocumentTable({ documents, status, loadMore }: DocumentT
 
             </TableHeader>
             <TableBody>
+                {(documents?.length === 0  && status != "LoadingFirstPage") && (
+                    <TableRow>
+                        <TableCell colSpan={5} className="text-center text-gray-400">No document</TableCell>
+                    </TableRow>
+                )}
                 {documents?.map((document) => (
                     <DocumentRow key={document._id} document={document} />
                 ))}
             </TableBody>
         </Table>
-
+        {/* TODO: 这里基于当前数据是否填满来判断的，可能存在问题 */}
         {status === "CanLoadMore" && (
             <button
                 onClick={() => loadMore(5)}
@@ -52,7 +61,7 @@ export default function DocumentTable({ documents, status, loadMore }: DocumentT
                 Load more documents
             </button>
         )}
-        {status === "LoadingMore" && (
+        {(status === "LoadingFirstPage" || status === "LoadingMore") && (
             <div className="mx-auto text-sm text-gray-500 py-2">
                 Loading...
             </div>
@@ -62,18 +71,14 @@ export default function DocumentTable({ documents, status, loadMore }: DocumentT
 
 
 function DocumentRow({ document }: { document: Doc<"documents"> }) {
-    if (!document) {
-        return (
-            <TableRow>
-                <TableCell colSpan={5} className="text-center text-gray-400">
-                    No document
-                </TableCell>
-            </TableRow>
-        );
-    }
+
+    const router = useRouter()
+    const removeByID= useMutation(api.document.removeByID)
+
+
 
     return (
-        <TableRow>
+        <TableRow key={document._id} onClick={() => router.push(`/documents/${document._id}`)} className="cursor-pointer hover:bg-gray-100">
             <TableCell className="w-[50px]">
                 <SiGoogledocs className="size-6 fill-blue-500" />
             </TableCell>
@@ -82,7 +87,7 @@ function DocumentRow({ document }: { document: Doc<"documents"> }) {
             </TableCell>
             <TableCell className="hidden md:table-cell">
                 <div className="flex items-center gap-2 text-muted-foreground">
-                    {document.orgId ? (
+                    {document.organizationId !== "undefined" ? (
                         <>
                             <Building2 className="w-4 h-4" />
                             <span>Organization</span>
@@ -96,27 +101,40 @@ function DocumentRow({ document }: { document: Doc<"documents"> }) {
                 </div>
             </TableCell>
             <TableCell className="hidden md:table-cell text-muted-foreground">
-                {new Date(document.createdAt).toLocaleDateString("en-US", {
+                {new Date(document._creationTime).toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "short",
                     day: "numeric"
                 })}
             </TableCell>
-            <TableCell>
+            <TableCell className="text-right" onClick={e => e.stopPropagation()}>
                 <DropdownMenu>
                     <DropdownMenuTrigger>
                         <MoreVerticalIcon className="w-4 h-4 " />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
                             <PencilIcon className="w-4 h-4 mr-2" />
                             Rename
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={async (e) => {
+                            e.stopPropagation();
+                            try {
+                                await removeByID({ id: document._id });
+                                toast.success("Document removed successfully");
+                            } catch (error) {
+                                toast.error("Failed to remove document");
+                                console.error(error);
+                            }
+                           
+                        }}>
                             <Trash2Icon className="w-4 h-4 mr-2" />
                             Remove
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={(e)=> {
+                                e.stopPropagation();
+                                window.open(`/documents/${document._id}`, '_blank');
+                            }}>
                             <ExternalLinkIcon className="w-4 h-4 mr-2" />
                             Open in new tab
                         </DropdownMenuItem>
