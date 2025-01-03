@@ -13,19 +13,29 @@ import TextAlign from '@tiptap/extension-text-align'
 import { Extension } from '@tiptap/react'
 
 import { Color } from '@tiptap/extension-color'
-import {useEditorStore } from "@/hook/use-editor"
+import { useEditorStore } from "@/hook/use-editor"
 import { useLiveblocksExtension } from "@liveblocks/react-tiptap";
 
 
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
+import { Threads } from './Threads';
+import { useStorage } from '@liveblocks/react';
 
-export default function Editor() {
-  const leftPadding = 56;
-  const rightPadding = 56;
-  const {setEditor} = useEditorStore()
+export default function Editor({initialContent}: {initialContent: string}) {
+  
+  // const leftPadding = 56;
+  // const rightPadding = 56;
+  const { leftPadding = 56, rightPadding = 56 } = useStorage(
+    (root) => ({
+      leftPadding: root.leftPadding,
+      rightPadding: root.rightPadding
+    })
+  ) ?? { leftPadding: 56, rightPadding: 56 }
+  const { setEditor } = useEditorStore()
   const liveblocks = useLiveblocksExtension(
     {
+      initialContent: initialContent,
       offlineSupport_experimental: true
     }
   );
@@ -55,7 +65,7 @@ export default function Editor() {
     onContentError: ({ editor }) => {
       setEditor(editor)
     },
-    
+
     immediatelyRender: false,
     extensions: [
       liveblocks as Extension,
@@ -119,6 +129,10 @@ export default function Editor() {
 
   })
 
-  return <EditorContent editor={editor} />
-}
+  return (
+  <div>
+    <EditorContent editor={editor} className="editor" />
+    <Threads editor={editor} />
+  </div>
+  )}
 

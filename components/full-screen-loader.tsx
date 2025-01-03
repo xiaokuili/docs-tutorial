@@ -4,7 +4,7 @@ type FullScreenLoadingProps = {
     message?: string;
 }
 
-export default function FullScreenLoading({ message }: FullScreenLoadingProps) {
+export default function FullScreenLoader({ message }: FullScreenLoadingProps) {
     return (
         <div className="flex flex-col justify-center items-center h-screen">
             <div className="animate-spin ">

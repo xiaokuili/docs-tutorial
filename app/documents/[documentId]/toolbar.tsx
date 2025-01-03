@@ -105,6 +105,13 @@ export default function Toolbar() {
                 isActive: editor?.isActive('underline') || false
             }
         ],
+        [
+            {
+                icon: MessageSquare,
+                onClick: () => { editor?.chain().focus().addPendingComment().run() },
+                isActive: editor?.isActive('liveblocksCommentMark') || false
+            }
+        ]
         
     ]
 
@@ -138,8 +145,9 @@ export default function Toolbar() {
             <ToolbarButton key="tasklist" Icon={ListChecks} onClick={() => editor?.chain().focus().toggleTaskList().run()} isActive={editor?.isActive('taskList') || false} />
 
             <LineHeightButton />
-            <CommentButton />
-           
+            {items[2].map((item, index) => (
+                <ToolbarButton key={index} Icon={item.icon} onClick={item.onClick} isActive={item.isActive} />
+            ))}           
         </div>
     )
 }
@@ -549,14 +557,6 @@ function LineHeightButton() {
                 ))}
             </DropdownMenuContent>
         </DropdownMenu>
-    )
-}
-
-function CommentButton() {
-    return (
-        <button className="h-7 min-w-7 shrink-0 flex items-center justify-center rounded-sm hover:bg-neutral-200/80">
-            <MessageSquare className="size-4" />
-        </button>
     )
 }
 

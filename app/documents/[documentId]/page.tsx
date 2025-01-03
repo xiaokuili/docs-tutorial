@@ -1,26 +1,18 @@
-"use client"
-import Editor from "./editor";
-import Toolbar from "./toolbar"
-import Navbar from "./navbar"
-import Ruler from "./ruler"
-import { Room } from "./room";
+"use server"
+import { preloadQuery } from "convex/nextjs";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
+import Document from "./document";
 
-export default function Page() {
+export  default async function Page({params}: {params: {documentId: string}}) {
+  const { documentId } = await params;
+
+  const preloadedTasks = await preloadQuery(api.document.getById, {
+    documentId: documentId as Id<"documents">,
+  });
+
   return (
-    <div className="flex flex-col h-screen bg-gray-100">
-      <div className="sticky top-0 z-50 print:hidden">
-        <Navbar />
-        <Toolbar />
-      </div>
-
-      <div className="flex-1 overflow-y-auto print:overflow-visible">
-        <Ruler />
-        <Room>
-          <Editor />
-        </Room>
-
-      </div>
-    </div>
+    <Document preloadedTasks={preloadedTasks} />
   );
 }
 

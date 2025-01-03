@@ -1,24 +1,36 @@
 "use client"
-import { useState } from "react"
-
-
+import { useMutation } from "@liveblocks/react/suspense";
+import { useStorage } from "@liveblocks/react/suspense";
 
 
 export default function Ruler() {
-    const [left, setLeft] = useState(56)
-    const [right, setRight] = useState(56)
+    const left = useStorage((root) => root.leftPadding)
+    const changeLeftPadding = useMutation(({ storage }, newPadding: number) => {
+        storage.set("leftPadding", newPadding);
+    }, []);
+
     const handleLeftMove = (e: React.MouseEvent<HTMLButtonElement>) => {
         if (e.buttons === 1) {
             const rect = e.currentTarget.parentElement?.getBoundingClientRect();
             if (rect) {
                 const newPos = Math.max(0, Math.min(816, e.clientX - rect.left));
-                setLeft(newPos);
+                changeLeftPadding(newPos);
             }
         }
     }
 
-    const handleRightMove = () => {
-        setRight(right)
+    const right = useStorage((root) => root.rightPadding)
+    const changeRightPadding = useMutation(({ storage }, newPadding: number) => {
+        storage.set("rightPadding", newPadding);
+    }, []);
+    const handleRightMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+        if (e.buttons === 1) {
+            const rect = e.currentTarget.parentElement?.getBoundingClientRect();
+            if (rect) {
+                const newPos = Math.max(0, Math.min(816, e.clientX - rect.left));
+                changeRightPadding(newPos);
+            }
+        }
     }
 
     return (

@@ -12,15 +12,18 @@ declare global {
     Storage: {
       // Example, a conflict-free list
       // animals: LiveList<string>;
+      leftPadding: number;
+      rightPadding: number;
     };
 
     // Custom user info set when authenticating with a secret key
     UserMeta: {
       id: string;
       info: {
-        // Example properties, for useSelf, useUser, useOthers, etc.
-        // name: string;
-        // avatar: string;
+        name: string;
+        color: string;
+        avatar: string;
+
       };
     };
 

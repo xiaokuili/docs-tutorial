@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/menubar"
 import DocumentTitle from './document-title'
 import { UserButton,OrganizationSwitcher } from "@clerk/clerk-react";
-
+import Inbox from './inbox'
 
 
 export default function Navbar() {
@@ -103,6 +103,7 @@ export default function Navbar() {
                 </div>
             </div>
             <div className="flex items-center gap-2">
+                <Inbox />
                 <OrganizationSwitcher />
                 <UserButton />
             </div>

@@ -88,3 +88,43 @@ export const removeByID = mutation({
     await ctx.db.delete(args.id);
   }
 })
+
+export const getById = query({
+  args: {
+    documentId: v.id("documents"),
+  },
+  handler: async (ctx, args) => {
+      const document = await ctx.db.get(args.documentId);
+      if (!document) {
+          throw new Error("Document not found");
+      }
+      return document;
+  }
+});
+
+
+export const updateTitle = mutation({
+  args: {
+    id: v.id("documents"),
+    title: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.auth.getUserIdentity();
+    if (!user) {
+      throw new Error("Not authenticated");
+    }
+
+    const document = await ctx.db.get(args.id);
+    if (!document) {
+      throw new Error("Document not found"); 
+    }
+
+    if (document.ownerId !== user.subject && document.organizationId !== user.organization_id) {
+      throw new Error("Not authorized");
+    }
+
+    await ctx.db.patch(args.id, {
+      title: args.title
+    });
+  }
+});
